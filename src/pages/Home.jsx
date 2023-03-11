@@ -86,13 +86,11 @@ export const Home = () => {
   }, []);
 
   useEffect(() => {
-    console.log(isSearch.current);
     window.scrollTo(0, 0);
 
     if (!isSearch.current) {
       fetchPizzas();
     }
-
     isSearch.current = false;
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [categoryId, sort, searchValue, currentPage]);
