@@ -30,19 +30,23 @@ export const cartSlice = createSlice({
     },
     deleteItem(state, action) {
       const findItem = state.items.find((obj) => obj.id === action.payload);
-      updateTotalPrice(state);
       findItem.count === 0 ? (findItem.count = 0) : findItem.count--;
+      updateTotalPrice(state);
     },
     removeItem(state, action) {
       state.items = state.items.filter((obj) => obj.id !== action.payload);
       updateTotalPrice(state);
     },
-    clearItems(state, action) {
+    clearItems(state) {
       state.items = [];
       state.totalPrice = 0;
     },
   },
 });
+
+export const selectCart = (state) => state.cart;
+export const selectCartItemById = (id) => (state) =>
+  state.cart.items.find((obj) => obj.id === id);
 
 export const { addItem, removeItem, deleteItem, clearItems } =
   cartSlice.actions;

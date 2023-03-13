@@ -1,8 +1,7 @@
 import React, { useRef } from 'react';
 import qs from 'qs';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 
 import { Categories } from '../components/Categories';
@@ -17,41 +16,36 @@ import {
   setFilters,
 } from '../redux/slices/filterSlice';
 
+import { fetchPizzas } from '../redux/slices/pizzaSlice';
+
 export const Home = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const isSearch = useRef(false);
   const isMounted = useRef(false);
 
+  const { items, status } = useSelector((state) => state.pizza);
   const { categoryId, searchValue, sort, currentPage } = useSelector(
     (state) => state.filter
   );
 
-  const [items, setItems] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
-
-  const fetchPizzas = () => {
-    setIsLoading(true);
-
+  const getPizzas = async () => {
     const category = categoryId > 0 ? `category=${categoryId}` : '';
     const order = sort.sortProperty.includes('-') ? 'asc' : 'desc';
     const sortBy = sort.sortProperty.replace('-', '');
     const search = searchValue ? `&search=${searchValue}` : '';
 
-    try {
-      axios
-        .get(
-          `https://63fec807370fe830d9d8c3e0.mockapi.io/items?page=${currentPage}&limit=8&${category}&sortBy=${sortBy}&order=${order}${search}`
-        )
-        .then((res) => {
-          setItems(res.data);
-          setIsLoading(false);
-        });
-    } catch (error) {
-      console.error(error);
-    }
+    dispatch(
+      fetchPizzas({
+        sortBy,
+        category,
+        order,
+        search,
+        currentPage,
+      })
+    );
+    window.scrollTo(0, 0);
   };
-
   useEffect(() => {
     if (isMounted.current) {
       const queryString = qs.stringify({
@@ -89,7 +83,7 @@ export const Home = () => {
     window.scrollTo(0, 0);
 
     if (!isSearch.current) {
-      fetchPizzas();
+      getPizzas();
     }
     isSearch.current = false;
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -105,13 +99,25 @@ export const Home = () => {
         <Sort />
       </div>
       <h2 className="content__title">Все пиццы</h2>
-      <div className="content__items">
-        {isLoading
-          ? [...new Array(6)].map((_, index) => <Skeleton key={index} />)
-          : items.map((pizzaItem) => (
-              <PizzaBlock key={pizzaItem.id} {...pizzaItem} />
-            ))}
-      </div>
+
+      {status === 'error' ? (
+        <div className="content__error-info">
+          <h2>
+            Произошла ошибка <span>😕</span>
+          </h2>
+          <p>К сожалению, не удалось получить пиццы</p>
+          <p>Попробуйте повторить запрос позже</p>
+        </div>
+      ) : (
+        <div className="content__items">
+          {status === 'loading'
+            ? [...new Array(6)].map((_, index) => <Skeleton key={index} />)
+            : items.map((pizzaItem) => (
+                <PizzaBlock key={pizzaItem.id} {...pizzaItem} />
+              ))}
+        </div>
+      )}
+
       <Pagination
         currentPage={currentPage}
         onChangePage={(number) => dispatch(setCurrentPage(number))}
