@@ -1,42 +1,49 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import { setSort } from '../redux/slices/filter/slice';
+import { SortPropertyEnum } from '../redux/slices/filter/types';
+import { RootState } from '../redux/store';
 
-import { setSort } from '../redux/slices/filterSlice';
+type SortItem = {
+  name: string;
+  sortProperty: SortPropertyEnum;
+};
 
-export const listSort = [
+export const listSort: SortItem[] = [
   {
     name: 'популярности',
-    sortProperty: 'rating',
+    sortProperty: SortPropertyEnum.RATING_DESC,
   },
   {
     name: 'цене (возрастание)',
-    sortProperty: '-price',
+    sortProperty: SortPropertyEnum.PRICE_ASC,
   },
   {
     name: 'цене (убывание)',
-    sortProperty: 'price',
+    sortProperty: SortPropertyEnum.PRICE_DESC,
   },
   {
     name: 'алфавиту',
-    sortProperty: '-title',
+    sortProperty: SortPropertyEnum.TITLE_ASC,
   },
 ];
 
-export const Sort = () => {
+export const SortPopup: React.FC = React.memo(() => {
   const dispatch = useDispatch();
-  const sort = useSelector((state) => state.filter.sort);
-  const sortRef = useRef();
+  const sort = useSelector((state: RootState) => state.filter.sort);
+  const sortRef = useRef<HTMLDivElement>(null);
 
   const [isVisible, setIsVisible] = useState(false);
 
-  const onClickListItem = (i) => {
-    dispatch(setSort(i));
+  const onClickListItem = (obj: SortItem) => {
+    dispatch(setSort(obj));
     setIsVisible(false);
   };
 
   useEffect(() => {
-    const hadleClickOutSide = (event) => {
-      if (!event.composedPath().includes(sortRef.current)) {
+    const hadleClickOutSide = (event: MouseEvent) => {
+      if (sortRef.current && !event.composedPath().includes(sortRef.current)) {
         setIsVisible(false);
       }
     };
@@ -83,4 +90,4 @@ export const Sort = () => {
       )}
     </div>
   );
-};
+});

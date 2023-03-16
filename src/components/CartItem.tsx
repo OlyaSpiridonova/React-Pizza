@@ -1,16 +1,35 @@
 import React from 'react';
 import { useDispatch } from 'react-redux';
+import clsx from 'clsx';
+import { CartItem } from '../redux/slices/cart/types';
+import { addItem, deleteItem, removeItem } from '../redux/slices/cart/slice';
 
-import { addItem, deleteItem, removeItem } from '../redux/slices/cartSlice';
+type CartItemProps = {
+  id: string;
+  title: string;
+  type: string;
+  size: number;
+  price: number;
+  count: number;
+  imageUrl: string;
+};
 
-export const CartItem = ({ id, title, type, size, price, count, imageUrl }) => {
+export const CartItemBlock: React.FC<CartItemProps> = ({
+  id,
+  title,
+  type,
+  size,
+  price,
+  count,
+  imageUrl,
+}) => {
   const dispatch = useDispatch();
 
   const onClickPlus = () => {
     dispatch(
       addItem({
         id,
-      })
+      } as CartItem)
     );
   };
 
@@ -35,9 +54,13 @@ export const CartItem = ({ id, title, type, size, price, count, imageUrl }) => {
         </p>
       </div>
       <div className="cart__item-count">
-        <div
+        <button
+          disabled={count === 1}
           onClick={onClickRemove}
-          className="button button--outline button--circle cart__item-count-minus"
+          className={clsx(
+            'button button--outline button--circle cart__item-count-minus',
+            { 'cart__item-disabled': count === 1 }
+          )}
         >
           <svg
             width="10"
@@ -55,9 +78,9 @@ export const CartItem = ({ id, title, type, size, price, count, imageUrl }) => {
               fill="#EB5A1E"
             />
           </svg>
-        </div>
+        </button>
         <b>{count}</b>
-        <div
+        <button
           onClick={onClickPlus}
           className="button button--outline button--circle cart__item-count-plus"
         >
@@ -77,7 +100,7 @@ export const CartItem = ({ id, title, type, size, price, count, imageUrl }) => {
               fill="#EB5A1E"
             />
           </svg>
-        </div>
+        </button>
       </div>
       <div className="cart__item-price">
         <b>{price * count} ₽</b>

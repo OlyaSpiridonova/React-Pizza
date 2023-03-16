@@ -1,11 +1,11 @@
 import React, { useRef } from 'react';
 import qs from 'qs';
 import { useEffect } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 
 import { Categories } from '../components/Categories';
-import { listSort, Sort } from '../components/Sort';
+import { listSort, SortPopup } from '../components/Sort';
 import { PizzaBlock } from '../components/PizzaBlock';
 import { Skeleton } from '../components/PizzaBlock/Skeleton';
 import { Pagination } from '../components/Pagination';
@@ -14,20 +14,26 @@ import {
   setCategoryId,
   setCurrentPage,
   setFilters,
-} from '../redux/slices/filterSlice';
+} from '../redux/slices/filter/slice';
+import { fetchPizzas } from '../redux/slices/pizza/asyncActions';
+import { SearchPizzaParams } from '../redux/slices/pizza/types';
+import { RootState, useAppDispatch } from '../redux/store';
 
-import { fetchPizzas } from '../redux/slices/pizzaSlice';
-
-export const Home = () => {
-  const dispatch = useDispatch();
+export const Home: React.FC = () => {
+  const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const isSearch = useRef(false);
   const isMounted = useRef(false);
 
-  const { items, status } = useSelector((state) => state.pizza);
+  const { items, status } = useSelector((state: RootState) => state.pizza);
   const { categoryId, searchValue, sort, currentPage } = useSelector(
-    (state) => state.filter
+    (state: RootState) => state.filter
   );
+
+  const onChangeCategory = React.useCallback((id: number) => {
+    dispatch(setCategoryId(id));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const getPizzas = async () => {
     const category = categoryId > 0 ? `category=${categoryId}` : '';
@@ -41,11 +47,13 @@ export const Home = () => {
         category,
         order,
         search,
-        currentPage,
+        currentPage: String(currentPage),
       })
     );
     window.scrollTo(0, 0);
   };
+
+  //Если изменили параметры и был первый рендер
   useEffect(() => {
     if (isMounted.current) {
       const queryString = qs.stringify({
@@ -62,16 +70,16 @@ export const Home = () => {
 
   useEffect(() => {
     if (window.location.search) {
-      const params = qs.parse(window.location.search.substring(1));
-
-      const sort = listSort.find(
-        (obj) => obj.sortProperty === params.sortProperty
-      );
-
+      const params = qs.parse(
+        window.location.search.substring(1)
+      ) as unknown as SearchPizzaParams;
+      const sort = listSort.find((obj) => obj.sortProperty === params.sortBy);
       dispatch(
         setFilters({
-          ...params,
-          sort,
+          searchValue: params.search,
+          categoryId: Number(params.category),
+          currentPage: Number(params.currentPage),
+          sort: sort || listSort[0],
         })
       );
       isSearch.current = true;
@@ -89,14 +97,16 @@ export const Home = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [categoryId, sort, searchValue, currentPage]);
 
+  const pizzas = items.map((obj: any) => <PizzaBlock key={obj.id} {...obj} />);
+  const skeletons = [...new Array(6)].map((_, index) => (
+    <Skeleton key={index} />
+  ));
+
   return (
     <div className="container">
       <div className="content__top">
-        <Categories
-          value={categoryId}
-          onChangeCategory={(id) => dispatch(setCategoryId(id))}
-        />
-        <Sort />
+        <Categories value={categoryId} onChangeCategory={onChangeCategory} />
+        <SortPopup />
       </div>
       <h2 className="content__title">Все пиццы</h2>
 
@@ -110,17 +120,13 @@ export const Home = () => {
         </div>
       ) : (
         <div className="content__items">
-          {status === 'loading'
-            ? [...new Array(6)].map((_, index) => <Skeleton key={index} />)
-            : items.map((pizzaItem) => (
-                <PizzaBlock key={pizzaItem.id} {...pizzaItem} />
-              ))}
+          {status === 'loading' ? skeletons : pizzas}
         </div>
       )}
 
       <Pagination
         currentPage={currentPage}
-        onChangePage={(number) => dispatch(setCurrentPage(number))}
+        onChangePage={(number: number) => dispatch(setCurrentPage(number))}
       />
     </div>
   );
