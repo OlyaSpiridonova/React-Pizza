@@ -2,6 +2,8 @@ import axios from 'axios';
 import React from 'react';
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { ButtonBack } from '../../components/ButtonBack';
+import styles from './FullPizza.module.scss';
 
 export const FullPizza: React.FC = () => {
   const [pizza, setPizza] = useState<{
@@ -34,9 +36,18 @@ export const FullPizza: React.FC = () => {
   }
   return (
     <div className="container">
-      <img src={pizza.imageUrl} alt="Pizza" />
-      <h2>{pizza.title}</h2>
-      <h4>{pizza.price} р</h4>
+      <div className={styles.fullPizza}>
+        <img
+          className={styles.fullPizza__img}
+          src={pizza.imageUrl}
+          alt="Pizza"
+        />
+        <h2 className={styles.fullPizza__title}>{pizza.title}</h2>
+        <h4 className={styles.fullPizza__price}>
+          Стоимость: {pizza.price} руб.
+        </h4>
+        <ButtonBack />
+      </div>
     </div>
   );
 };

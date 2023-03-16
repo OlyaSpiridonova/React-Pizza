@@ -1,11 +1,11 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 
 import { CartEmpty } from '../components/CartEmpty';
 import { CartItemBlock } from '../components/CartItem';
 import { clearItems } from '../redux/slices/cart/slice';
 import { selectCart } from '../redux/slices/cart/selectors';
+import { ButtonBack } from '../components/ButtonBack';
 
 export const Cart: React.FC = () => {
   const dispatch = useDispatch();
@@ -120,31 +120,10 @@ export const Cart: React.FC = () => {
             </span>
           </div>
           <div className="cart__bottom-buttons">
-            <Link
-              to="/"
-              className="button button--outline button--add go-back-btn"
-            >
-              <svg
-                width="8"
-                height="14"
-                viewBox="0 0 8 14"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  d="M7 13L1 6.93015L6.86175 1"
-                  stroke="#D3D3D3"
-                  strokeWidth="1.5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                ></path>
-              </svg>
-
-              <span>Вернуться назад</span>
-            </Link>
-            <div className="button pay-btn">
+            <ButtonBack />
+            <button className="button pay-btn">
               <span>Оплатить сейчас</span>
-            </div>
+            </button>
           </div>
         </div>
       </div>

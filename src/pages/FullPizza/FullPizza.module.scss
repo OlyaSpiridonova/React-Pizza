@@ -1,0 +1,34 @@
+.fullPizza {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  row-gap: 15px;
+
+  &__img {
+    width: 300px;
+  }
+
+  &__title {
+    font-size: 30px;
+    color: #d76a1c;
+  }
+
+  &__price {
+    font-size: 22px;
+    color: #bd6f37;
+  }
+
+  @media (max-width: 650px) {
+    &__img {
+      width: 250px;
+    }
+
+    &__title {
+      font-size: 20px;
+    }
+
+    &__price {
+      font-size: 18px;
+    }
+  }
+}

@@ -43,6 +43,12 @@
     min-width: 32px;
     padding: 0;
     border-width: 2px;
+
+    @media (max-width: 800px) {
+      width: 22px;
+      height: 22px;
+      min-width: 22px;
+    }
   }
 
   &--black {

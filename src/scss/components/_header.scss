@@ -9,10 +9,17 @@
     align-items: center;
     justify-content: space-between;
 
+    @media (max-width: 990px) {
+      flex-wrap: wrap;
+      justify-content: space-around;
+      row-gap: 15px;
+    }
+
     @media (max-width: 635px) {
       flex-direction: column;
 
       .header__logo {
+        margin-bottom: 10px;
         flex-direction: column;
         align-items: center;
         text-align: center;
@@ -20,7 +27,7 @@
       }
 
       .header__cart {
-        margin-top: 30px;
+        margin-top: 15px;
       }
     }
   }
